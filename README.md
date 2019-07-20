@@ -12,7 +12,7 @@ Please check [INSTALL.md](INSTALL.md) (same as original FCOS) for installation i
 
 
 Model | Total training mem (GB) | Multi-scale training | Testing time / im | AP (minival) 
---- |:---:|:---:|:---:|:---:|:--:|:---:
+---   |:---:|:---:|:---:|:---:|
 FCOS_R_50_FPN_1x | 29.3 | No | 71ms | 37.0 |
 FCOS_R_50_FPN_1x_center | 30.61 | No | 71ms | 37.8 |
 FCOS_R_50_FPN_1x_center_liou | 30.61 | No | 71ms | 38.1 |
@@ -20,12 +20,11 @@ FCOS_R_50_FPN_1x_center_giou | 30.61 | No | 71ms | 38.2 |
 FCOS_R_101_FPN_2x | 44.1 | Yes | 74ms | 41.4 |
 FCOS_R_101_FPN_2x_center_giou | 44.1 | Yes | 74ms | 42.5 |
 
-[1] *1x and 2x mean the model is trained for 90K and 180K iterations, respectively.* 
-[2] center mean center sample are used in our training.
-[3] liou mean the model use linear iou loss function. (1 - iou) 
-[4] giou mean the use giou loss function. (1 - giou)
+[1] *1x and 2x mean the model is trained for 90K and 180K iterations, respectively.* \
+[2] center mean [center sample](fcos.pdf) are used in our training. \
+[3] liou mean the model use linear iou loss function. (1 - iou) \
+[4] giou mean the use giou loss function. (1 - giou) 
 
-center sample example. ![center_sample](fcos.pdf)
 
 ## Training
 
