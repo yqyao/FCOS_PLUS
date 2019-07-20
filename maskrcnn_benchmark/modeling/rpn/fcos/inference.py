@@ -16,15 +16,8 @@ class FCOSPostProcessor(torch.nn.Module):
     Performs post-processing on the outputs of the RetinaNet boxes.
     This is only used in the testing.
     """
-    def __init__(
-        self,
-        pre_nms_thresh,
-        pre_nms_top_n,
-        nms_thresh,
-        fpn_post_nms_top_n,
-        min_size,
-        num_classes,
-    ):
+    def __init__(self, pre_nms_thresh, pre_nms_top_n, nms_thresh,
+                 fpn_post_nms_top_n, min_size, num_classes):
         """
         Arguments:
             pre_nms_thresh (float)
@@ -57,7 +50,7 @@ class FCOSPostProcessor(torch.nn.Module):
 
         # put in the same format as locations
         box_cls = box_cls.view(N, C, H, W).permute(0, 2, 3, 1)
-        box_cls = box_cls.reshape(N, -1, C).sigmoid()
+        box_cls = box_cls.reshape(N, -1, self.num_classes - 1).sigmoid()
         box_regression = box_regression.view(N, 4, H, W).permute(0, 2, 3, 1)
         box_regression = box_regression.reshape(N, -1, 4)
         centerness = centerness.view(N, 1, H, W).permute(0, 2, 3, 1)
@@ -197,7 +190,6 @@ def make_fcos_postprocessor(config):
         nms_thresh=nms_thresh,
         fpn_post_nms_top_n=fpn_post_nms_top_n,
         min_size=0,
-        num_classes=config.MODEL.FCOS.NUM_CLASSES
-    )
+        num_classes=config.MODEL.FCOS.NUM_CLASSES)
 
     return box_selector

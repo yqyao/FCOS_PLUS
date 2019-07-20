@@ -293,6 +293,9 @@ _C.MODEL.FCOS.PRE_NMS_TOP_N = 1000
 _C.MODEL.FCOS.LOSS_ALPHA = 0.25
 # Focal loss parameter: gamma
 _C.MODEL.FCOS.LOSS_GAMMA = 2.0
+_C.MODEL.FCOS.CENTER_SAMPLE = False
+_C.MODEL.FCOS.POS_RADIUS = 1.5
+_C.MODEL.FCOS.LOC_LOSS_TYPE = 'iou'
 
 # the number of convolutions used in the cls and bbox tower
 _C.MODEL.FCOS.NUM_CONVS = 4

@@ -10,7 +10,8 @@ MODEL:
   RETINANET:
     USE_C5: False # FCOS uses P5 instead of C5
   FCOS:
-    CENTER_SAMPLE: False
+    CENTER_SAMPLE: True
+    POS_RADIUS: 1.5
 DATASETS:
   TRAIN: ("coco_2017_train", )
   TEST: ("coco_2017_val", )
