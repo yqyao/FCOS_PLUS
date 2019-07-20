@@ -47,16 +47,17 @@ class FCOSHead(torch.nn.Module):
 
         self.add_module('cls_tower', nn.Sequential(*cls_tower))
         self.add_module('bbox_tower', nn.Sequential(*bbox_tower))
+        self.dense_points = cfg.MODEL.FCOS.DENSE_POINTS
         self.cls_logits = nn.Conv2d(
-            in_channels, num_classes, kernel_size=3, stride=1,
+            in_channels, num_classes * self.dense_points, kernel_size=3, stride=1,
             padding=1
         )
         self.bbox_pred = nn.Conv2d(
-            in_channels, 4, kernel_size=3, stride=1,
+            in_channels, 4 * self.dense_points, kernel_size=3, stride=1,
             padding=1
         )
         self.centerness = nn.Conv2d(
-            in_channels, 1, kernel_size=3, stride=1,
+            in_channels, 1 * self.dense_points, kernel_size=3, stride=1,
             padding=1
         )
 
@@ -108,6 +109,7 @@ class FCOSModule(torch.nn.Module):
         self.box_selector_test = box_selector_test
         self.loss_evaluator = loss_evaluator
         self.fpn_strides = cfg.MODEL.FCOS.FPN_STRIDES
+        self.dense_points = cfg.MODEL.FCOS.DENSE_POINTS
 
     def forward(self, images, features, targets=None):
         """
@@ -181,7 +183,29 @@ class FCOSModule(torch.nn.Module):
         shift_x = shift_x.reshape(-1)
         shift_y = shift_y.reshape(-1)
         locations = torch.stack((shift_x, shift_y), dim=1) + stride // 2
+        locations = self.get_dense_locations(locations, stride, device)
         return locations
+
+    def get_dense_locations(self, locations, stride, device):
+        if self.dense_points <= 1:
+            return locations
+        center = 0
+        step = stride // 4
+        l_t = [center - step, center - step]
+        r_t = [center + step, center - step]
+        l_b = [center - step, center + step]
+        r_b = [center + step, center + step]
+        if self.dense_points == 4:
+            points = torch.cuda.FloatTensor([l_t, r_t, l_b, r_b], device=device)
+        elif self.dense_points == 5:
+            points = torch.cuda.FloatTensor([l_t, r_t, [center, center], l_b, r_b], device=device)
+        else:
+            print("dense points only support 1, 4, 5")
+        points.reshape(1, -1, 2)
+        locations = locations.reshape(-1, 1, 2).to(points)
+        dense_locations = points + locations
+        dense_locations = dense_locations.view(-1, 2)
+        return dense_locations
 
 
 def build_fcos(cfg, in_channels):

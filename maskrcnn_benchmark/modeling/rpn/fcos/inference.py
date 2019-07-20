@@ -17,7 +17,7 @@ class FCOSPostProcessor(torch.nn.Module):
     This is only used in the testing.
     """
     def __init__(self, pre_nms_thresh, pre_nms_top_n, nms_thresh,
-                 fpn_post_nms_top_n, min_size, num_classes):
+                 fpn_post_nms_top_n, min_size, num_classes, dense_points):
         """
         Arguments:
             pre_nms_thresh (float)
@@ -35,6 +35,7 @@ class FCOSPostProcessor(torch.nn.Module):
         self.fpn_post_nms_top_n = fpn_post_nms_top_n
         self.min_size = min_size
         self.num_classes = num_classes
+        self.dense_points = dense_points
 
     def forward_for_single_feature_map(
             self, locations, box_cls,
@@ -51,9 +52,9 @@ class FCOSPostProcessor(torch.nn.Module):
         # put in the same format as locations
         box_cls = box_cls.view(N, C, H, W).permute(0, 2, 3, 1)
         box_cls = box_cls.reshape(N, -1, self.num_classes - 1).sigmoid()
-        box_regression = box_regression.view(N, 4, H, W).permute(0, 2, 3, 1)
+        box_regression = box_regression.view(N, self.dense_points * 4, H, W).permute(0, 2, 3, 1)
         box_regression = box_regression.reshape(N, -1, 4)
-        centerness = centerness.view(N, 1, H, W).permute(0, 2, 3, 1)
+        centerness = centerness.view(N, self.dense_points, H, W).permute(0, 2, 3, 1)
         centerness = centerness.reshape(N, -1).sigmoid()
 
         candidate_inds = box_cls > self.pre_nms_thresh
@@ -183,6 +184,7 @@ def make_fcos_postprocessor(config):
     pre_nms_top_n = config.MODEL.FCOS.PRE_NMS_TOP_N
     nms_thresh = config.MODEL.FCOS.NMS_TH
     fpn_post_nms_top_n = config.TEST.DETECTIONS_PER_IMG
+    dense_points = config.MODEL.FCOS.DENSE_POINTS
 
     box_selector = FCOSPostProcessor(
         pre_nms_thresh=pre_nms_thresh,
@@ -190,6 +192,7 @@ def make_fcos_postprocessor(config):
         nms_thresh=nms_thresh,
         fpn_post_nms_top_n=fpn_post_nms_top_n,
         min_size=0,
-        num_classes=config.MODEL.FCOS.NUM_CLASSES)
+        num_classes=config.MODEL.FCOS.NUM_CLASSES,
+        dense_points=dense_points)
 
     return box_selector

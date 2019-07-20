@@ -296,6 +296,7 @@ _C.MODEL.FCOS.LOSS_GAMMA = 2.0
 _C.MODEL.FCOS.CENTER_SAMPLE = False
 _C.MODEL.FCOS.POS_RADIUS = 1.5
 _C.MODEL.FCOS.LOC_LOSS_TYPE = 'iou'
+_C.MODEL.FCOS.DENSE_POINTS = 1
 
 # the number of convolutions used in the cls and bbox tower
 _C.MODEL.FCOS.NUM_CONVS = 4

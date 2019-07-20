@@ -37,6 +37,7 @@ class FCOSLossComputation(object):
         # but we found that L1 in log scale can yield a similar performance
         self.box_reg_loss_func = IOULoss(self.loc_loss_type)
         self.centerness_loss_func = nn.BCEWithLogitsLoss()
+        self.dense_points = cfg.MODEL.FCOS.DENSE_POINTS
 
     def get_sample_region(self, gt, strides, num_points_per, gt_xs, gt_ys, radius=1):
         num_gts = gt.shape[0]
@@ -183,7 +184,7 @@ class FCOSLossComputation(object):
             centerness_loss (Tensor)
         """
         N = box_cls[0].size(0)
-        num_classes = box_cls[0].size(1)
+        num_classes = box_cls[0].size(1) // self.dense_points
         labels, reg_targets = self.prepare_targets(locations, targets)
 
         box_cls_flatten = []
