@@ -40,7 +40,7 @@ python setup.py build_ext install
 # install PyTorch Detection
 cd $INSTALL_DIR
 git clone https://github.com/yqyao/FCOS_PLUS.git
-cd FCOS
+cd FCOS_PLUS
 
 # the following will install the lib with
 # symbolic links, so that you can modify
